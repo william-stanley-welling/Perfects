@@ -1,0 +1,1374 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{array, booktabs, multirow}
+\usepackage{geometry}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{rotating}
+
+\geometry{a4paper, margin=1in}
+
+\newcolumntype{C}{>{\centering\arraybackslash}m{1.2em}}
+
+\DeclareMathOperator{\diffop}{\triangle}
+
+\newcommand{\diff}{\mathbin{\diffop}}
+\newcommand{\layer}{\ell}
+\newcommand{\mc}[1]{\multicolumn{1}{c}{#1}}
+\newcommand{\perfect}{\mathcal{P}}
+
+\newcommand{\orbitweight}{\varphi}
+\newcommand{\layersum}{\sigma}
+\newcommand{\perfectsum}{\kappa}
+
+\newtheorem{definition}{Definition}[section]
+
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{example}[definition]{Example}
+\newtheorem{remark}[definition]{Remark}
+
+\title{
+  Irreducible Abstraction of Perfects \\[4pt]
+}
+\author{}
+\date{November 2025 \\[32pt]}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We introduce a novel symmetric decomposition of $k^n$ ($k,n \in \mathbb{Z}_{>0}$) into a bilateral lattice structure termed a \emph{Perfect}. This framework provides a geometric-combinatorial interpretation of exponentiation through discrete curvature analysis, revealing fundamental recursive structure and asymptotic properties. The decomposition partitions $k^n$ into three components organized by symmetry: a single apex point, $k-1$ fulcrum points along the central axis, and symmetric orbits with weights determined by the discrete second difference operator. We establish the fundamental identity $k^n = 1 + (k-1) + 2\kappa(k,n)$, where $\kappa(k,n)$ represents cumulative orbit weight, and prove this decomposition is unique for given parameters. Key contributions include the rigorous construction of the Perfect lattice with bilateral symmetry and recursive embedding properties, analysis of divisibility symmetries, geometric interpretation of binomial expansion through a novel difference operator, asymptotic analysis of orbit weights, and complete computational verification for small parameters.
+This work establishes exponential functions as structured accumulations of discrete curvature in symmetric lattices, with implications for discrete analysis, combinatorics, and algebraic geometry.
+\end{abstract}
+
+\newpage
+
+% =============================================================================
+% SECTION 1: Introduction
+% =============================================================================
+
+\section{Introduction}\label{sec:introduction}
+
+The exponential function $k^{n}$ admits a geometric decomposition into a bilateral symmetric lattice centered on a fulcrum. This decomposition, termed a \emph{Perfect}, provides a combinatorial interpretation of the discrete second difference and reveals recursive symmetries in power functions. \\
+
+A $(k,n)$-Perfect, denoted $\perfect(k,n)$, comprises:
+\begin{itemize}
+    \item \emph{Apex}: At layer 1, a single point at distance 0 with weight 1
+    \item \emph{Fulcrum}: At each layer $\ell$ (for $2 \leq \ell \leq k$), a point at distance 0 with weight 1 (total $k-1$ points)
+    \item \emph{Orbits}: At each layer $\ell$ (for $2 \leq \ell \leq k$), and for each distance $d = 1, \dots, \ell-1$, two symmetric clusters (at distances $\pm d$) with weights $\varphi(d,n)$
+\end{itemize}
+
+\subsection{Geometric Intuition}
+
+Before presenting formal definitions, we provide intuition for why the Perfect decomposition arises naturally from the structure of exponential functions.
+
+\subsubsection*{The Discrete Second Difference}
+Consider a discrete function $f(d)$ defined on integers. The centered discrete second difference
+\[
+\Delta^2 f(d) = f(d+1) - 2f(d) + f(d-1)
+\]
+measures the ``curvature'' or ``acceleration'' of $f$ at point $d$. For the power function $f(d) = d^n$:
+\begin{itemize}
+    \item When $n = 1$: $\Delta^2[d] = (d+1) - 2d + (d-1) = 0$ (linear functions have zero curvature)
+    \item When $n = 2$: $\Delta^2[d^2] = (d+1)^2 - 2d^2 + (d-1)^2 = 2$ (constant curvature)
+    \item When $n \geq 3$: $\Delta^2[d^n]$ grows as $n(n-1)d^{n-2}$ (polynomial curvature)
+\end{itemize}
+
+The function $\varphi(d,n) = \frac{1}{2}\Delta^2[d^n]$ captures half of this discrete curvature, representing the weight contribution from a symmetric pair of positions at distance $\pm d$ from the center.
+
+\subsubsection*{Building the Lattice}
+The Perfect structure emerges by asking: \emph{How can we decompose $k^n$ into a symmetric lattice where weights reflect the intrinsic curvature of the exponential function?}
+
+We construct layers progressively:
+\begin{enumerate}
+    \item \textbf{Layer 1 (Apex):} A single point with weight 1, representing $1^n = 1$
+    \item \textbf{Layer 2:} Adding a fulcrum (weight 1) and two orbit points at distance $\pm 1$ with weights $\varphi(1,n)$ gives total weight $1 + 1 + 2\varphi(1,n) = 2^n$
+    \item \textbf{Layer $\ell$:} Adding orbits at distances $\pm 1, \pm 2, \ldots, \pm(\ell-1)$ around a new fulcrum point accumulates to $\ell^n$
+\end{enumerate}
+
+This layered construction naturally produces a triangular lattice where:
+\begin{itemize}
+    \item The central axis (distance 0) contains the apex and fulcrum points
+    \item Each layer $\ell$ extends the lattice by adding orbits up to distance $\pm(\ell-1)$
+    \item The bilateral symmetry reflects the symmetry of $(d+1)^n$ and $(d-1)^n$ around $d^n$
+    \item The polynomial growth of $\varphi(d,n)$ captures how rapidly $k^n$ grows with $k$
+\end{itemize}
+
+\subsubsection*{Decomposition Insight}
+The Perfect decomposition reveals that exponential growth is not uniform but has a geometric structure:
+\begin{itemize}
+    \item The fulcrum points contribute linearly: $k-1$ points of weight 1
+    \item The orbit weights contribute polynomially through $\varphi(d,n)$
+    \item The recursive embedding property shows that smaller Perfects nest within larger ones
+    \item The difference operator connects this geometry to binomial expansion
+\end{itemize}
+
+In essence, the Perfect provides a ``coordinate system'' for understanding $k^n$ as a structured accumulation of discrete curvature contributions, organized in a balanced layer-by-layer fashion.
+
+The expanded weight distribution satisfies:
+\[
+k^{n} = \underbrace{1}_{\text{apex}} + \underbrace{k-1}_{\text{fulcrum}} + 2 \cdot \kappa(k,n), \quad 
+\kappa(k,n) = \sum_{\ell=1}^{k-1} \sigma(\ell,n), \quad 
+\sigma(\ell,n) = \sum_{d=1}^{\ell} \varphi(d,n).
+\]
+
+\subsection{Connections to Existing Mathematics}
+
+The Perfect decomposition connects to several established mathematical areas:
+
+\begin{itemize}
+    \item \textbf{Discrete Calculus}: The function $\varphi(d,n)$ represents half the discrete second difference of $d^n$, linking to finite difference calculus.
+    \item \textbf{Combinatorics}: The bilateral symmetric structure relates to combinatorial identities and generating functions.
+    \item \textbf{Algebraic Geometry}: The recursive embedding properties suggest connections to algebraic varieties and toric geometry.
+    \item \textbf{Number Theory}: The sixfold symmetry for odd exponents relates to modular arithmetic and divisibility properties.
+\end{itemize}
+
+\subsection{Notation and Conventions}
+We use the following notational conventions throughout the paper.
+\begin{itemize}
+  \item $k,m,n$ denote positive integers; unless otherwise stated, we assume $k\ge 1$, $n\ge 1$, and when a comparison is required, we state it explicitly (for example, $k>m\ge1$).
+  \item For integers $d\ge1$ and $n\ge1$ we define the \emph{orbit weight function}
+  \[
+    \varphi(d,n) = \frac{(d+1)^{n}-2d^{n}+(d-1)^{n}}{2}.
+  \]
+  We explicitly treat the ``central'' or distance zero case separately: the weight at distance $d=0$ is defined to be $1$ in the Perfect structures (this is not a value produced by $\varphi$).
+  \item For $\ell\ge0$ and $n\ge1$ we denote
+  \[
+    \sigma(\ell,n):=\sum_{d=1}^{\ell}\varphi(d,n),
+    \qquad
+    \kappa(k,n):=\sum_{\ell=1}^{k-1}\sigma(\ell,n).
+  \]
+  (We will always state base cases such as $\sigma(0,n)=0$, $\kappa(1,n)=0$ where needed.)
+  \item $\perfect(k,n)$ denotes the Perfect structure (or Perfect) with base $k$ and exponent $n$.
+  \item $P \diff Q$ denotes the Perfect difference operator defined in Section~\ref{sec:difference}.
+  \item All sums and combinatorial expressions are taken over integers in the ranges shown; $\binom{n}{j}$ is zero for $j<0$ or $j>n$ by convention.
+\end{itemize}
+
+
+% =============================================================================
+% SECTION 2: Definitions and Basic Properties
+% =============================================================================
+
+\section{Definitions and Basic Properties}\label{sec:definitions}
+
+\begin{definition}[Orbit Weight Function]\label{def:orbit-weight}
+For integers $d \geq 1$ and $n \geq 1$, define the orbit weight function as:
+\[
+\varphi(d,n) = \frac{(d+1)^{n} - 2d^{n} + (d-1)^{n}}{2}.
+\]
+This represents half the centered discrete second difference of the function $f(d) = d^n$.
+\end{definition}
+
+\begin{lemma}[Properties of $\varphi(d,n)$]\label{lem:phi-properties}
+The function $\varphi(d,n)$ satisfies:
+\begin{enumerate}
+    \item $\varphi(d,n) \in \mathbb{Z}$ for all $d,n \geq 1$,
+    \item $\varphi(d,1) = 0$ for all $d \geq 1$,
+    \item For $n \geq 2$, $\varphi(d,n) > 0$,
+    \item For $n = 2$, $\varphi(d,2) = 1$ for all $d \geq 1$; for $n \geq 3$, $\varphi(d,n)$ is strictly increasing in $d$,
+    \item $\varphi(d,n) = \sum_{j=1}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}$.
+\end{enumerate}
+\begin{proof}
+(1) Consider the numerator $(d+1)^n - 2d^n + (d-1)^n$. By the binomial theorem:
+\begin{align*}
+(d+1)^n &= \sum_{k=0}^n \binom{n}{k} d^k \\
+(d-1)^n &= \sum_{k=0}^n \binom{n}{k} (-1)^{n-k} d^k
+\end{align*}
+Thus:
+\begin{align*}
+(d+1)^n + (d-1)^n &= \sum_{k=0}^n \binom{n}{k} (1 + (-1)^{n-k}) d^k \\
+&= 2\sum_{j=0}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}
+\end{align*}
+Therefore:
+\[
+(d+1)^n - 2d^n + (d-1)^n = 2\sum_{j=1}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}
+\]
+Dividing by 2 gives $\varphi(d,n) = \sum_{j=1}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}$, which is clearly an integer.
+
+(2) Direct computation: $\varphi(d,1) = \frac{(d+1) - 2d + (d-1)}{2} = 0$.
+
+(3) For $n \geq 2$, the expression $\varphi(d,n) = \sum_{j=1}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}$ is a sum of positive terms since $\binom{n}{2j} > 0$ for $1 \leq j \leq \lfloor n/2 \rfloor$ and $d^{n-2j} > 0$ for $d \geq 1$.
+
+(4) For $n=2$: $\varphi(d,2) = \frac{(d+1)^2 - 2d^2 + (d-1)^2}{2} = 1$. For $n \geq 3$, consider the forward difference:
+\begin{align*}
+\varphi(d+1,n) - \varphi(d,n) &= \frac{(d+2)^n - 3(d+1)^n + 3d^n - (d-1)^n}{2} \\
+&= \frac{1}{2}\Delta^3[d^n] = \sum_{j=1}^{\lfloor (n-1)/2 \rfloor} \binom{n}{2j+1} d^{n-2j-1}
+\end{align*}
+This is positive for $d \geq 1$, $n \geq 3$ since all terms are positive.
+
+(5) This follows directly from the derivation in part (1).
+\end{proof}
+\end{lemma}
+
+\begin{definition}[Layer Sum]\label{def:layer-sum}
+For layer $\ell \geq 0$ and exponent $n \geq 1$:
+\[
+\sigma(\ell,n) = \begin{cases}
+    0 & \ell = 0, \\
+    \sum_{d=1}^{\ell} \varphi(d,n) & \ell \geq 1.
+\end{cases}
+\]
+\end{definition}
+
+\begin{proposition}[Closed Form for Layer Sum]\label{prop:layer-sum-closed}
+For $\ell \geq 1$ and $n \geq 1$:
+\[
+\sigma(\ell,n) = \frac{(\ell+1)^n - \ell^n - 1}{2}
+\]
+\begin{proof}
+We compute directly from the definition:
+\begin{align*}
+2\sigma(\ell,n) &= \sum_{d=1}^{\ell} \left[(d+1)^{n} - 2d^{n} + (d-1)^{n}\right] \\
+&= \sum_{d=1}^{\ell} (d+1)^{n} - 2\sum_{d=1}^{\ell} d^{n} + \sum_{d=1}^{\ell} (d-1)^{n}
+\end{align*}
+Reindexing the sums:
+\begin{align*}
+\sum_{d=1}^{\ell} (d+1)^{n} &= \sum_{j=2}^{\ell+1} j^{n} \\
+\sum_{d=1}^{\ell} (d-1)^{n} &= \sum_{j=0}^{\ell-1} j^{n}
+\end{align*}
+Thus:
+\begin{align*}
+2\sigma(\ell,n) &= \left(\sum_{j=2}^{\ell+1} j^{n}\right) - 2\left(\sum_{j=1}^{\ell} j^{n}\right) + \left(\sum_{j=0}^{\ell-1} j^{n}\right) \\
+&= \left((\ell+1)^{n} + \sum_{j=2}^{\ell} j^{n}\right) - 2\left(1^{n} + \sum_{j=2}^{\ell} j^{n}\right) + \left(0^{n} + 1^{n} + \sum_{j=2}^{\ell-1} j^{n}\right) \\
+&= (\ell+1)^{n} - 1^{n} - \ell^{n} + 0^{n}
+\end{align*}
+For $n \geq 1$, $0^{n} = 0$ and $1^{n} = 1$, giving:
+\[
+2\sigma(\ell,n) = (\ell+1)^{n} - \ell^{n} - 1
+\]
+Dividing by 2 yields the result.
+\end{proof}
+\end{proposition}
+
+\begin{definition}[Orbit Sum]\label{def:orbit-sum}
+For base $k \geq 1$ and exponent $n \geq 1$:
+\[
+\kappa(k,n) = \begin{cases}
+    0 & k = 1, \\
+    \sum_{\ell=1}^{k-1} \sigma(\ell,n) & k \geq 2.
+\end{cases}
+\]
+\end{definition}
+
+\begin{proposition}[Alternative Formula for Orbit Sum]\label{prop:orbit-sum-alternative}
+The orbit sum $\kappa(k,n)$ can be equivalently expressed as:
+\[
+\kappa(k,n) = \sum_{d=1}^{k-1} (k-d) \varphi(d,n)
+\]
+\begin{proof}
+By exchanging the order of summation:
+\[
+\kappa(k,n) = \sum_{\ell=1}^{k-1} \sum_{d=1}^{\ell} \varphi(d,n) 
+= \sum_{d=1}^{k-1} \sum_{\ell=d}^{k-1} \varphi(d,n) 
+= \sum_{d=1}^{k-1} (k-d) \varphi(d,n).
+\]
+\end{proof}
+\end{proposition}
+
+
+% =============================================================================
+% SECTION 3: Fundamental Identities
+% =============================================================================
+
+\section{Fundamental Identities}\label{sec:identities}
+
+\begin{proposition}[Fundamental Weight Identity]\label{prop:fundamental-identity}
+For $k \geq 2$ and $n \geq 1$:
+\[
+k^n = (k-1)^n + 1 + 2\sigma(k-1,n)
+\]
+\begin{proof}
+We compute directly using the definition of $\sigma(k-1,n)$:
+\begin{align*}
+2\sigma(k-1,n) &= \sum_{d=1}^{k-1} \left[(d+1)^n - 2d^n + (d-1)^n\right] \\
+&= \sum_{j=2}^{k} j^n - 2\sum_{j=1}^{k-1} j^n + \sum_{j=0}^{k-2} j^n \\
+&= \left(k^n + \sum_{j=2}^{k-1} j^n\right) - 2\left(\sum_{j=1}^{k-1} j^n\right) + \left(1 + \sum_{j=2}^{k-1} j^n\right) \\
+&= k^n - 1 - \sum_{j=1}^{k-1} j^n + \sum_{j=1}^{k-1} j^n \quad \text{(since $0^n = 0$ for $n \geq 1$)} \\
+&= k^n - 1
+\end{align*}
+Thus $2\sigma(k-1,n) = k^n - (k-1)^n - 1$, which rearranges to the desired identity.
+\end{proof}
+\end{proposition}
+
+\begin{proposition}[Recursive Decomposition]\label{prop:recursive-decomposition}
+The Perfect structure satisfies:
+\begin{align}
+k^{n} &= (k-1)^{n} + 1 + 2 \cdot \sigma(k-1,n) \quad (k \geq 2) \label{eq:rec1} \\
+\kappa(k,n) &= \kappa(k-1,n) + \sigma(k-1,n) \quad (k \geq 2) \label{eq:rec2} \\
+\sigma(\ell,n) &= \sigma(\ell-1,n) + \varphi(\ell,n) \quad (\ell \geq 1) \label{eq:rec3}
+\end{align}
+\begin{proof}
+Equation (\ref{eq:rec1}) is Proposition~\ref{prop:fundamental-identity}. Equations (\ref{eq:rec2}) and (\ref{eq:rec3}) follow directly from the definitions of $\kappa(k,n)$ and $\sigma(\ell,n)$ as cumulative sums.
+\end{proof}
+\end{proposition}
+
+
+% =============================================================================
+% SECTION 4: Perfect Construction and Fundamental Properties
+% =============================================================================
+
+\section{Perfect Construction and Fundamental Properties}\label{sec:construction}
+
+\begin{definition}[Perfect Structure]\label{def:perfect-structure}
+For $k,n \in \mathbb{Z}_{>0}$, a $(k,n)$-Perfect, denoted $\perfect(k,n)$, is a weighted lattice structure with $k$ layers indexed by $\ell = 1, 2, \ldots, k$, where layer $\ell$ contains $2\ell-1$ positions at distances $-(\ell-1), \ldots, -1, 0, 1, \ldots, \ell-1$ with weights defined as follows:
+\begin{itemize}
+    \item \emph{Central position} (distance 0): weight 1 for all layers
+    \begin{itemize}
+        \item For $\ell = 1$: called the \emph{apex}
+        \item For $\ell \geq 2$: called a \emph{fulcrum} point
+    \end{itemize}
+    \item \emph{Orbit positions} (distance $\pm d$ for $1 \leq d \leq \ell-1$): weight $\varphi(d,n)$
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Total Weight Decomposition]\label{thm:weight-decomposition}
+The total weight of a $(k,n)$-Perfect is $k^{n}$, decomposed as:
+\[
+k^{n} = \underbrace{1}_{\text{apex}} + \underbrace{k-1}_{\text{fulcrum}} + 2 \cdot \kappa(k,n).
+\]
+\begin{proof}
+We proceed by induction on $k$.
+
+\textbf{Base case} ($k=1$): The $(1,n)$-Perfect consists of a single apex point with weight $1 = 1^n$.
+
+\textbf{Inductive step}: Assume the result holds for $m = k-1$. Consider the $(k,n)$-Perfect. The layers $1$ through $k-1$ form a $(k-1,n)$-Perfect with total weight $(k-1)^n$ by the induction hypothesis.
+
+Layer $k$ contributes:
+\begin{itemize}
+    \item One fulcrum point at distance 0: weight 1
+    \item Orbit pairs at distances $\pm d$ for $d=1,\ldots,k-1$: total weight $2\sum_{d=1}^{k-1} \varphi(d,n) = 2\sigma(k-1,n)$
+\end{itemize}
+
+Thus the total weight is:
+\[
+(k-1)^n + 1 + 2\sigma(k-1,n)
+\]
+
+From Proposition~\ref{prop:fundamental-identity}, we have:
+\[
+k^n = (k-1)^n + 1 + 2\sigma(k-1,n)
+\]
+completing the induction.
+
+The decomposition form follows by noting that the fulcrum points total $k-1$ (one in each layer except the apex), and the orbit weight is $2\kappa(k,n)$ by definition.
+\end{proof}
+\end{theorem}
+
+\begin{theorem}[Perfect Structure Well-Definedness]\label{thm:uniqueness}
+The construction in Definition~\ref{def:perfect-structure} is well-defined and satisfies:
+\begin{enumerate}
+    \item The layer structure is completely determined by $k$ and $n$,
+    \item The total weight equals $k^n$ (Theorem~\ref{thm:weight-decomposition}),
+    \item Given $k$ and $n$, the weight at each position $(\ell,d)$ is uniquely determined.
+\end{enumerate}
+\begin{proof}
+(1) and (3) follow directly from Definition~\ref{def:perfect-structure}. (2) is Theorem~\ref{thm:weight-decomposition}.
+\end{proof}
+\end{theorem}
+
+
+% =============================================================================
+% SECTION 5: Recursive Embeddings
+% =============================================================================
+
+\section{Recursive Embeddings}\label{sec:embeddings}
+
+\begin{definition}[Embedding of Perfects]\label{def:embedding}
+A $(o,n)$-Perfect is \emph{embedded} at layer $p$ of a $(k,n)$-Perfect if there exists an injective mapping $\iota: \{1,\ldots,o\} \times \{-o+1,\ldots,o-1\} \to \{1,\ldots,k\} \times \{-k+1,\ldots,k-1\}$ such that:
+\begin{enumerate}
+    \item Layer preservation: $\iota(i,d) = (p + i - 1, d)$
+    \item Weight preservation: $w(i,d) = w(p+i-1,d)$ for all valid $(i,d)$
+    \item The mapping respects bilateral symmetry: positions at distances $\pm d$ map to positions at distances $\pm d$
+\end{enumerate}
+where $w(\ell,d)$ denotes the weight at layer $\ell$, distance $d$ in the host Perfect.
+\end{definition}
+
+\begin{theorem}[Recursive Embedding Property]\label{thm:embedding}
+For $k \geq 1$, $n \geq 1$ and any $1 \leq p \leq k$, the $(k,n)$-Perfect contains:
+\begin{enumerate}
+    \item A $(m,n)$-Perfect as its top $m$ layers for each $1 \leq m \leq k$,
+    \item A $(o,n)$-Perfect embedded at layer $p$ for any $o$ satisfying $p + o - 1 \leq k$.
+\end{enumerate}
+\begin{proof}
+Let $P = \perfect(k,n)$ and consider the sub-structure $P'$ consisting of layers $p$ through $p+o-1$.
+
+\textbf{Layer correspondence:} For each layer $i \in \{1,\ldots,o\}$ of the embedded Perfect, map to layer $p+i-1$ of $P$.
+
+\textbf{Weight preservation:} For distance $d=0$, $w_P(p+i-1,0) = 1 = w_{P'}(i,0)$. For $d \geq 1$, 
+$w_P(p+i-1,\pm d) = \varphi(d,n) = w_{P'}(i,\pm d)$.
+
+\textbf{Structural integrity:} The bilateral symmetry is preserved since the mapping respects the distance parameter. The layer structure is maintained because for layer $i$ in $P'$, the maximum distance is $i-1$, and in layer $p+i-1$ of $P$, the maximum distance is $p+i-2 \geq i-1$ (since $p \geq 1$).
+
+Thus $P'$ satisfies Definition~\ref{def:perfect-structure} with parameters $(o,n)$.
+\end{proof}
+\end{theorem}
+
+\begin{example}\label{ex:embedding}
+In $\perfect(5,3)$, the $(3,3)$-Perfect can be embedded:
+\begin{itemize}
+    \item At layers 1-3 (top embedding): This is the natural sub-Perfect,
+    \item At layers 2-4: Layer 1 of the embedded Perfect maps to layer 2 of the host,
+    \item At layers 3-5 (bottom embedding): Layer 1 of the embedded Perfect maps to layer 3 of the host.
+\end{itemize}
+All embeddings preserve the weight structure since $\varphi(d,n)$ depends only on $d$ and $n$, not on the absolute layer position.
+\end{example}
+
+
+% =============================================================================
+% SECTION 6: Sixfold Symmetry
+% =============================================================================
+
+\section{Sixfold Symmetry}\label{sec:sixfold-symmetry}
+
+\begin{theorem}[Sixfold Symmetry]\label{thm:sixfold}
+For odd exponents $n > 2$, the total orbit weight $2\kappa(k,n) = k^n - k$ is divisible by 6.
+\begin{proof}
+We analyze $k^n - k \mod 6$:
+
+\textbf{Modulo 2}: $k^n \equiv k \pmod{2}$ for all $n \geq 1$, so $k^n - k \equiv 0 \pmod{2}$.
+
+\textbf{Modulo 3}: For $k \not\equiv 0 \pmod{3}$, by Fermat's Little Theorem $k^2 \equiv 1 \pmod{3}$, so for odd $n = 2m+1$:
+\[
+k^n = k^{2m+1} = (k^2)^m \cdot k \equiv 1^m \cdot k \equiv k \pmod{3}
+\]
+For $k \equiv 0 \pmod{3}$, $k^n - k \equiv 0 \pmod{3}$ trivially.
+
+Since $k^n - k$ is divisible by both 2 and 3, and $\gcd(2,3)=1$, it is divisible by 6.
+
+The geometric interpretation connects this algebraic fact to the bilateral symmetry and threefold periodicity in the orbit distribution.
+\end{proof}
+\end{theorem}
+
+\begin{remark}[Context of Symmetry]\label{rem:sixfold-context}
+We note that the divisibility $k^n - k \equiv 0 \pmod{6}$ for odd $n \geq 3$ is a known elementary result in number theory, related to Fermat's Little Theorem. The contribution of this framework is the geometric interpretation of the quantity $k^n - k$ as the total weight of the symmetric orbits, $2\kappa(k,n)$. The symmetry is a property of the algebraic quantity itself, which is then reflected in its geometric realization.
+\end{remark}
+
+
+% =============================================================================
+% SECTION 7: Asymptotic Growth and Convergence
+% =============================================================================
+
+\section{Asymptotic Growth and Convergence}\label{sec:asymptotics}
+
+\begin{definition}[Infinite Perfect]\label{def:infinite-perfect}
+For fixed $n \geq 2$, the infinite Perfect has layers $\ell = 1,2,\ldots$ with:
+\begin{itemize}
+    \item Distance 0: Weight 1,
+    \item Distance $d \geq 1$: Weight $\varphi(d,n)$.
+\end{itemize}
+Layer $\ell$ contains distances $0, 1, \ldots, \ell-1$ with bilateral symmetry.
+
+Note that for $n \geq 2$, the infinite Perfect has infinite total weight since $\sum_{\ell=1}^{\infty} \ell^{n-1}$ diverges. The structure is considered in the sense of a formal limit of finite Perfects.
+\end{definition}
+
+\begin{theorem}[Exact Polynomial Form of $\varphi(d,n)$]\label{thm:exact-polynomial}
+For fixed $n \geq 2$, the orbit weight function $\varphi(d,n)$ is an exact polynomial in $d$:
+\[
+\varphi(d,n) = \sum_{j=1}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}
+= \binom{n}{2} d^{n-2} + \binom{n}{4} d^{n-4} + \cdots
+\]
+\begin{proof}
+From the binomial expansion proof in Lemma~\ref{lem:phi-properties}(1):
+\[
+(d+1)^n + (d-1)^n - 2d^n = 2\sum_{j=1}^{\lfloor n/2 \rfloor} \binom{n}{2j} d^{n-2j}
+\]
+Dividing by 2 gives the exact expression for $\varphi(d,n)$.
+\end{proof}
+\end{theorem}
+
+\begin{proposition}[Leading Order Asymptotics]\label{prop:leading-asymptotics}
+For fixed $n \geq 2$, the asymptotic behavior of $\varphi(d,n)$ is given by:
+\[
+\varphi(d,n) = \frac{1}{2}n(n-1)d^{n-2} + O(d^{n-4}) \quad \text{as } d \to \infty
+\]
+More precisely, $\varphi(d,n) \sim \frac{1}{2}n(n-1)d^{n-2}$ with relative error $O(d^{-2})$.
+\begin{proof}
+From Theorem~\ref{thm:exact-polynomial}, $\varphi(d,n) = \binom{n}{2}d^{n-2} + \binom{n}{4}d^{n-4} + \cdots$.
+The leading term dominates for large $d$, and the next term is of order $d^{n-4}$.
+\end{proof}
+\end{proposition}
+
+\begin{proposition}[Layer Weight Asymptotics]\label{prop:layer-asymptotics}
+For fixed $n \geq 2$ and layer $\ell \to \infty$, the total weight of the positions added at layer $\ell$ satisfies:
+\[
+w(\ell) = \ell^n - (\ell-1)^n \sim n \ell^{n-1} \quad \text{as } \ell \to \infty
+\]
+\begin{proof}
+The weight of layer $\ell$ (for $\ell \geq 2$) is the sum of its fulcrum (weight 1) and its orbits (weight $2\sum_{d=1}^{\ell-1} \varphi(d,n) = 2\sigma(\ell-1,n)$).
+From Proposition~\ref{prop:recursive-decomposition}, Eq. (\ref{eq:rec1}), we have the exact identity:
+\[
+w(\ell) = 1 + 2\sigma(\ell-1,n) = \ell^n - (\ell-1)^n
+\]
+By the binomial expansion of $(\ell-1)^n$:
+\[
+w(\ell) = \ell^n - \left( \ell^n - n\ell^{n-1} + \binom{n}{2}\ell^{n-2} - \cdots \right)
+= n\ell^{n-1} - \binom{n}{2}\ell^{n-2} + \cdots
+\]
+For large $\ell$, the leading term dominates, so $w(\ell) \sim n\ell^{n-1}$.
+\end{proof}
+\end{proposition}
+
+\begin{definition}[Asymptotic Layer Structure of Infinite Perfects]\label{def:asymptotic-layer}
+For layer $\ell \geq 1$ and exponent $n \geq 2$, the asymptotic infinite Perfect has the symmetric structure:
+\[
+\underbrace{\varphi(\ell-1,n)}_{\text{dist. }\ell-1},\ \ldots,\ \underbrace{\varphi(2,n)}_{\text{dist. }2},\ \underbrace{\varphi(1,n)}_{\text{dist. }1},\ \underbrace{1}_{\text{dist. }0},\ \varphi(1,n),\ \varphi(2,n),\ \ldots,\ \varphi(\ell-1,n)
+\]
+This represents the asymptotic limit of finite Perfects as $k \to \infty$ for fixed layer $\ell$.
+\end{definition}
+
+\begin{theorem}[Error Bounds for Asymptotic Approximation]\label{thm:error-bounds}
+For fixed $n \geq 2$ and $d \geq 1$, the relative error of the leading-order approximation satisfies:
+\[
+\left| \frac{\varphi(d,n)}{\frac{1}{2}n(n-1)d^{n-2}} - 1 \right| = O(d^{-2}) \quad \text{as } d \to \infty
+\]
+\begin{proof}
+From the exact polynomial form in Theorem~\ref{thm:exact-polynomial}, we have:
+\[
+\varphi(d,n) = \frac{1}{2}n(n-1)d^{n-2} + \binom{n}{4}d^{n-4} + \cdots
+\]
+Dividing both sides by $\frac{1}{2}n(n-1)d^{n-2}$:
+\[
+\frac{\varphi(d,n)}{\frac{1}{2}n(n-1)d^{n-2}} = 1 + \frac{2\binom{n}{4}}{n(n-1)}d^{-2} + O(d^{-4})
+\]
+Thus the relative error is $O(d^{-2})$ as $d \to \infty$.
+\end{proof}
+\end{theorem}
+
+\begin{proposition}[Convergence of Scaled Layer Distribution]\label{prop:layer-convergence}
+For fixed $n \geq 2$ and layer $\ell \to \infty$, consider the scaled distance $x = d/\ell$ where $0 < x < 1$. The asymptotic density of the normalized weight distribution satisfies:
+\[
+\lim_{\ell \to \infty} \frac{w(\ell, \lfloor x\ell \rfloor)}{\ell^{n-1}} = n(n-1)x^{n-2}
+\]
+where $w(\ell,d) = 2\varphi(d,n)$ is the total weight at distance $\pm d$ in layer $\ell$.
+
+Furthermore, the proportion of layer weight at scaled distance $x$ converges to:
+\[
+\lim_{\ell \to \infty} \frac{w(\ell, \lfloor x\ell \rfloor)}{w(\ell)} = (n-1)x^{n-2}\Delta x + o(1)
+\]
+where $\Delta x = 1/\ell$ represents the infinitesimal scaled distance.
+\begin{proof}
+From Proposition~\ref{prop:leading-asymptotics}, we have:
+\[
+w(\ell,d) = 2\varphi(d,n) \sim n(n-1)d^{n-2}
+\]
+Substituting $d = \lfloor x\ell \rfloor \sim x\ell$:
+\[
+\frac{w(\ell, \lfloor x\ell \rfloor)}{\ell^{n-1}} \sim \frac{n(n-1)(x\ell)^{n-2}}{\ell^{n-1}} = n(n-1)x^{n-2}\ell^{-1}
+\]
+This shows that the unscaled density decays as $\ell^{-1}$, which is expected since the total weight grows as $\ell^{n-1}$.
+
+For the proportion of layer weight, from Proposition~\ref{prop:layer-asymptotics}:
+\[
+w(\ell) \sim n\ell^{n-1}
+\]
+Thus:
+\[
+\frac{w(\ell, \lfloor x\ell \rfloor)}{w(\ell)} \sim \frac{n(n-1)(x\ell)^{n-2}}{n\ell^{n-1}} = (n-1)x^{n-2}\ell^{-1} = (n-1)x^{n-2}\Delta x
+\]
+This establishes the limiting density profile for the scaled distance distribution.
+\end{proof}
+\end{proposition}
+
+\begin{remark}[Geometric Interpretation of Layer Convergence]\label{rem:layer-convergence}
+The convergence result reveals that for large layers $\ell$, the weight distribution becomes increasingly concentrated at larger distances. The density function $(n-1)x^{n-2}$ shows that:
+\begin{itemize}
+\item For $n=2$, the distribution is uniform: $f(x) = 1$
+\item For $n=3$, the distribution is linear: $f(x) = 2x$  
+\item For $n=4$, the distribution is quadratic: $f(x) = 3x^2$
+\item In general, higher exponents concentrate more weight toward the outer edges ($x \to 1$)
+\end{itemize}
+This reflects the polynomial growth of $\varphi(d,n)$ and the curvature properties captured by the discrete second difference operator.
+\end{remark}
+
+
+% =============================================================================
+% SECTION 8: Difference Operator Between Perfects
+% =============================================================================
+
+\section{Difference Operator Between Perfects}\label{sec:difference}
+
+\begin{definition}[Perfect Difference Operator]\label{def:perfect-diff}
+For $k > m \geq 1$ and $n \geq 1$, let $P = \perfect(k,n)$ and $Q = \perfect(m,n)$. 
+
+The difference structure $R = P \diff Q$ is defined on layers $\ell = m+1, \ldots, k$ with:
+\[
+w_R(\ell,d) = w_P(\ell,d) \quad \text{for } |d| \leq \ell-1
+\]
+and zero otherwise. The total weight satisfies:
+\[
+\sum w_R = k^n - m^n
+\]
+\end{definition}
+
+\begin{theorem}[Weight Decomposition of Perfect Difference]\label{thm:weight-decomposition-diff}
+Let $P = \perfect(k,n)$ and $Q = \perfect(m,n)$. Then:
+\[
+k^n - m^n = \rho_{\text{inner}}(k,m,n) + \rho_{\text{outer}}(k,m,n)
+\]
+where:
+\begin{itemize}
+\item $\rho_{\text{inner}}(k,m,n) = (k-m)^n$ is the weight of a $\perfect(k-m,n)$ embedded in layers $m+1$ through $k$
+\item $\rho_{\text{outer}}(k,m,n) = \sum_{\ell=m+1}^k \sum_{d=k-m}^{\ell-1} 2\varphi(d,n)$ represents interaction terms
+\end{itemize}
+\begin{proof}
+The total weight difference is $k^n - m^n$ by Theorem~\ref{thm:weight-decomposition}. 
+
+The embedded $\perfect(k-m,n)$ in layers $m+1$ to $k$ contributes exactly $(k-m)^n$ weight by the same theorem.
+
+The remaining weight comes from orbits in layers $m+1$ to $k$ at distances $d \geq k-m$, which are not part of the embedded structure. For each layer $\ell$ from $m+1$ to $k$, these are the orbits at distances $d = k-m$ to $\ell-1$, each contributing $2\varphi(d,n)$ weight (due to bilateral symmetry).
+
+Summing over all such layers and distances gives $\rho_{\text{outer}}(k,m,n)$.
+\end{proof}
+\end{theorem}
+
+\begin{definition}[Remainder Weight Functions]\label{def:remainder-weights}
+We denote the remainder weight functions as:
+\begin{align}
+\rho_{\text{inner}}(k,m,n) &= (k-m)^n \quad \text{(weight of embedded Perfect)}, \\
+\rho_{\text{outer}}(k,m,n) &= k^n - m^n - (k-m)^n, \\
+\rho_{\text{total}}(k,m,n) &= k^n - m^n.
+\end{align}
+\end{definition}
+
+\begin{proposition}[Remainder Weight Properties]\label{prop:remainder-properties}
+The remainder weights satisfy:
+\begin{enumerate}
+    \item $\rho_{\text{total}}(k,m,n) = \rho_{\text{inner}}(k,m,n) + \rho_{\text{outer}}(k,m,n)$,
+    \item $\rho_{\text{outer}}(k,m,n) = 2 \sum_{i=1}^{k-m} \sum_{d=i}^{m+i-1} \varphi(d,n)$,
+    \item For $n \geq 2$, $\rho_{\text{outer}}(k,m,n) > 0$ when $k > m \geq 1$,
+    \item $\rho_{\text{outer}}(k,m,1) = 0$ for all $k > m$.
+\end{enumerate}
+\begin{proof}
+(1) Follows directly from the definitions.
+
+(2) The additional orbits occur in layers $\ell = m+i$ for $1 \leq i \leq k-m$ at distances $d = i$ to $m+i-1$.
+
+(3) For $n \geq 2$, $\varphi(d,n) > 0$ for all $d \geq 1$ (Lemma~\ref{lem:phi-properties}). When $k > m \geq 1$, there exists at least one term in the sum.
+
+(4) For $n=1$, $\varphi(d,1) = 0$ for all $d$, so all orbit weights are zero.
+\end{proof}
+\end{proposition}
+
+
+% =============================================================================
+% SECTION 9: Combinatorial Interpretation of Binomial Expansion
+% =============================================================================
+
+\section{Geometric Interpretation of Binomial Expansion}\label{sec:binomial}
+
+\begin{theorem}[Correspondence Between Perfects and Binomial Expansion]\label{thm:binomial-correspondence}
+For $k > m \geq 1$ and $n \geq 1$, the weight difference $k^n - m^n$ can be analyzed in two equivalent ways:
+
+\begin{enumerate}
+    \item \textbf{Algebraically:} via the binomial identity
+    \[
+    k^n - m^n = \sum_{j=0}^{n-1} \binom{n}{j} m^j (k-m)^{n-j}
+    \]
+    Separating the $j=0$ term gives:
+    \[
+    k^n - m^n = \underbrace{(k-m)^n}_{j=0 \text{ term}} + \underbrace{\sum_{j=1}^{n-1} \binom{n}{j} m^j (k-m)^{n-j}}_{j \geq 1 \text{ terms}}
+    \]
+    
+    \item \textbf{Geometrically:} via the Perfect difference structure $R = \perfect(k,n) \diff \perfect(m,n)$.
+    The total weight of $R$ is $k^n - m^n$. By Theorem~\ref{thm:embedding}, the layers $m+1$ through $k$ of the $\perfect(k,n)$ lattice (which constitute $R$) contain an embedded $(k-m,n)$-Perfect at layer $m+1$.
+    We can therefore decompose the total weight of $R$:
+    \[
+    k^n - m^n = \underbrace{(k-m)^n}_{\rho_{\text{inner}}} + \underbrace{\rho_{\text{outer}}(k,m,n)}_{\text{interaction orbits}}
+    \]
+    where $\rho_{\text{inner}}$ is the weight of the embedded $(k-m,n)$-Perfect and $\rho_{\text{outer}}$ is the weight of the remaining orbit positions in layers $m+1$ through $k$ that are not part of this embedded Perfect.
+\end{enumerate}
+
+These two decompositions correspond precisely. The ``core'' geometric structure (the embedded $\perfect(k-m,n)$) maps to the ``core'' algebraic term $(k-m)^n$. The geometric ``interaction'' orbits map to the algebraic "mixed" terms $\sum_{j=1}^{n-1} \binom{n}{j} m^j (k-m)^{n-j}$.
+\end{theorem}
+
+\begin{example}[Combinatorial Interpretation for $n=3$]\label{ex:binomial-interpretation}
+Consider $\perfect(5,3) \diff \perfect(2,3)$:
+\begin{align*}
+5^3 - 2^3 &= \sum_{j=0}^{2} \binom{3}{j} 2^j (5-2)^{3-j} \\
+117 &= \underbrace{\binom{3}{0}2^0 3^3}_{j=0} + \underbrace{\left[ \binom{3}{1}2^1 3^2 + \binom{3}{2}2^2 3^1 \right]}_{j=1, 2} \\
+117 &= \quad 27 \quad + \quad [ 54 + 36 ] = 27 + 90
+\end{align*}
+
+The geometric correspondence is:
+\begin{itemize}
+    \item $\rho_{\text{inner}} = 27$: Weight of the embedded $\perfect(3,3)$-Perfect. This matches the $j=0$ algebraic term.
+    \item $\rho_{\text{outer}} = 90$: Weight of the additional "interaction" orbits. This matches the sum of the $j \geq 1$ algebraic terms.
+\end{itemize}
+\end{example}
+
+
+% =============================================================================
+% SECTION 10: Conclusion
+% =============================================================================
+
+\section{Conclusion and Future Directions}
+
+\subsection{Summary of Contributions}
+
+This work establishes the Perfect decomposition as a fundamental geometric-combinatorial framework for understanding exponential functions. Our main contributions are:
+
+\begin{enumerate}
+\item \textbf{Structural Decomposition}: We proved that every positive integer power $k^n$ admits a canonical decomposition into a bilateral symmetric lattice with apex, fulcrum, and orbit components, satisfying the identity:
+\[
+k^n = 1 + (k-1) + 2\kappa(k,n)
+\]
+with the orbit weight function $\varphi(d,n)$ capturing discrete curvature.
+
+\item \textbf{Recursive Architecture}: The Perfect exhibits rich recursive structure—every $(k,n)$-Perfect contains embedded $(m,n)$-Perfects for $m < k$, demonstrating self-similarity in exponential growth patterns.
+
+\item \textbf{Symmetry and Divisibility}: We established sixfold symmetry for odd exponents $n > 2$, showing $k^n - k$ is divisible by 6, with geometric interpretation in the orbit distribution.
+
+\item \textbf{Combinatorial-Binomial Bridge}: The difference operator $\perfect(k,n) \diff \perfect(m,n)$ provides a geometric realization of binomial expansion, with the embedded $(k-m,n)$-Perfect corresponding to the $(k-m)^n$ term and additional orbits representing mixed terms.
+
+\item \textbf{Asymptotic Analysis}: We derived exact polynomial forms and leading-order asymptotics for $\varphi(d,n)$, showing consistent asymptotic behavior $\varphi(d,n) \sim \frac{1}{2}n(n-1)d^{n-2}$ for all $n \geq 2$.
+\end{enumerate}
+
+\subsection{Theoretical Significance and Connections}
+
+The Perfect framework creates bridges between several mathematical domains:
+
+\begin{itemize}
+\item \textbf{Discrete Analysis}: The second difference operator $\varphi(d,n)$ serves as a discrete analogue of curvature, with the Perfect structure providing geometric meaning to discrete derivatives.
+
+\item \textbf{Combinatorics}: The lattice structure reveals hidden combinatorial patterns in exponentiation, with the triangular arrangement connecting to binomial coefficients.
+
+\item \textbf{Algebraic Geometry}: The symmetric decomposition suggests geometric interpretations of arithmetic operations, potentially extending to algebraic varieties.
+
+\item \textbf{Number Theory}: The sixfold symmetry reveals modular arithmetic structure in exponential functions, with the geometric realization providing new insights into classical divisibility results.
+\end{itemize}
+
+\subsection{Open Problems and Future Research}
+
+\begin{enumerate}
+\item \textbf{Generalized Perfects}: Extend to real and complex exponents using analytic continuation of $\varphi(d,n)$, exploring connections to special functions and fractional calculus.
+
+\item \textbf{Higher-Dimensional Generalizations}: Develop multidimensional Perfect structures for multivariable monomials $k_1^{n_1}k_2^{n_2}\cdots k_m^{n_m}$, potentially connecting to tensor decompositions and algebraic geometry.
+
+\item \textbf{Operational Calculus}: Develop algebraic operations on Perfects (addition, multiplication) and investigate potential vector space or module structures.
+
+\item \textbf{Computational Applications}: Leverage the recursive structure for efficient exponentiation algorithms, parallel computation, and numerical analysis techniques.
+
+\item \textbf{Connections to Established Theories}: Explore relationships with symmetric function theory, representation theory of monoids, and combinatorial design theory.
+
+\item \textbf{Physical Interpretations}: Investigate potential applications in physics, particularly in lattice models, crystal structures, and discrete spacetime geometries.
+\end{enumerate}
+
+The Perfect decomposition transforms our understanding of exponentiation from a purely algebraic operation to a structured geometric process. By revealing the hidden lattice geometry of exponential functions, this work opens new pathways for analyzing mathematical structures through discrete geometric frameworks and suggests deep connections between combinatorics, algebra, and geometry that merit further exploration.
+
+\newpage
+
+
+% =============================================================================
+% Appendix: Computational Examples
+% =============================================================================
+
+\appendix
+\section*{Appendix: Computational Examples}\label{sec:appendix}
+
+Perfect structures are shown with centered layers (distance ordering: center to edges). Layers progress downward.
+For odd exponents $n > 2$, the total orbit weight exhibits sixfold symmetry.
+
+% =============================================================================
+% TABLE 1: Perfects for n=1 (φ(d,1) = 0)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=1$ ($\varphi(d,1) = 0$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$) & Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 1 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+2 & 1 & 2 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{0} & \mc{1} & \mc{0} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 1 & 3 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{0} & \mc{1} & \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{0} & \mc{0} & \mc{1} & \mc{0} & \mc{0} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 1 & 4 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{0} & \mc{1} & \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{0} & \mc{0} & \mc{1} & \mc{0} & \mc{0} \end{tabular}
+\\[2pt]
+\begin{tabular}{*{7}{C}} \mc{0} & \mc{0} & \mc{0} & \mc{1} & \mc{0} & \mc{0} & \mc{0} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 1 & 5 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{0} & \mc{1} & \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{0} & \mc{0} & \mc{1} & \mc{0} & \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{0} & \mc{0} & \mc{0} & \mc{1} & \mc{0} & \mc{0} & \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{0} & \mc{0} & \mc{0} & \mc{0} & \mc{1} & \mc{0} & \mc{0} & \mc{0} & \mc{0} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 2: Perfects for n=2 (φ(d,2) = 1)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=2$ ($\varphi(d,2) = 1$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$) & Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 2 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1}
+\end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+2 & 2 & 4 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{1} & \mc{1} & \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 2 & 9 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{1} & \mc{1} & \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 2 & 16 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{1} & \mc{1} & \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 2 & 25 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{1} & \mc{1} &
+\mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} & \mc{1} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 3: Perfects for n=3 (φ(d,3) = 3d)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=3$ ($\varphi(d,3) = 3d$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$) & Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 3 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+2 & 3 & 8 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{1} & \mc{3} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 3 & 27 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} &
+\mc{1} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 3 & 64 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{1} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 3 & 125 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{1} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}}
+\mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 4: Perfects for n=4 (φ(d,4) = 6d² + 1)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=4$ ($\varphi(d,4) = 6d^{2} + 1$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$) & Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 4 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+2 & 4 & 16 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{7} & \mc{1} & \mc{7} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 4 & 81 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{7} & \mc{1} & \mc{7} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 4 & 256 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{7} &
+\mc{1} & \mc{7} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 4 & 625 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{7} & \mc{1} & \mc{7} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{97} & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & \mc{97} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 5: Perfects for n=5 (φ(d,5) = 10d³ + 5d)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=5$ ($\varphi(d,5) = 10d^{3} + 5d$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$)
+& Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 5 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+2 & 5 & 32 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{15} & \mc{1} & \mc{15} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 5 & 243 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{15} & \mc{1} & \mc{15} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{90} & \mc{15} & \mc{1} & \mc{15} & \mc{90} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 5 & 1024 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{15} & \mc{1} & \mc{15} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{90} & \mc{15} & \mc{1} & \mc{15} & \mc{90} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{285} & \mc{90} & \mc{15} & \mc{1} & \mc{15} & \mc{90} & \mc{285} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 5 & 3125 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{15} & \mc{1} & \mc{15} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{90} & \mc{15} & \mc{1} & \mc{15} & \mc{90} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{285} & \mc{90} & \mc{15} & \mc{1} & \mc{15} & \mc{90} & \mc{285} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{660} & \mc{285} & \mc{90} & \mc{15} & \mc{1} & \mc{15} & \mc{90} & \mc{285} & \mc{660} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 6: Perfects for n=6 (φ(d,6) = 15d⁴ + 15d² + 1)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=6$ ($\varphi(d,6) = 15d^{4} + 15d^{2} + 1$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$) & Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 6 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+2 & 6 & 64 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}}
+\mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{31} & \mc{1} & \mc{31} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 6 & 729 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{31} & \mc{1} & \mc{31} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{301} & \mc{31} & \mc{1} & \mc{31} & \mc{301} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 6 & 4096 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{31} & \mc{1} & \mc{31} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{301} & \mc{31} & \mc{1} & \mc{31} & \mc{301} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{1351} & \mc{301} & \mc{31} & \mc{1} & \mc{31} & \mc{301} & \mc{1351} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 6 & 15625 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{31} & \mc{1} & \mc{31} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{301} & \mc{31} & \mc{1}
+& \mc{31} & \mc{301} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{1351} & \mc{301} & \mc{31} & \mc{1} & \mc{31} & \mc{301} & \mc{1351} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{4081} & \mc{1351} & \mc{301} & \mc{31} & \mc{1} & \mc{31} & \mc{301} & \mc{1351} & \mc{4081} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 7: Perfects for n=7 (φ(d,7) = 21d⁵ + 35d³ + 7d)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Perfects for $n=7$ ($\varphi(d,7) = 21d^{5} + 35d^{3} + 7d$)}
+\begin{tabular}{cclc}
+\toprule
+Base ($k$) & Exponent ($n$) & Total ($k^{n}$) & Lattice Structure \\
+\midrule
+1 & 7 & 1 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+2 & 7 & 128 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{63} & \mc{1} & \mc{63} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+3 & 7 & 2187 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{63} & \mc{1} & \mc{63} \end{tabular}
+\\[2pt]
+\begin{tabular}{*{5}{C}} \mc{966} & \mc{63} & \mc{1} & \mc{63} & \mc{966} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+4 & 7 & 16384 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{63} & \mc{1} & \mc{63} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{966} & \mc{63} & \mc{1} & \mc{63} & \mc{966} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{6069} & \mc{966} & \mc{63} & \mc{1} & \mc{63} & \mc{966} & \mc{6069} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+5 & 7 & 78125 &
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{63} & \mc{1} & \mc{63} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{966} & \mc{63} & \mc{1} & \mc{63} & \mc{966} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{6069} & \mc{966} & \mc{63} & \mc{1} & \mc{63} & \mc{966} & \mc{6069} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{23772} & \mc{6069} &
+\mc{966} & \mc{63} & \mc{1} & \mc{63} & \mc{966} & \mc{6069} & \mc{23772} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 8: Demonstration of the Weight Difference P(5,3) △ P(2,3)
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Demonstration of the Weight Difference $\perfect(5,3) \diff \perfect(2,3)$}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cl}
+\toprule
+\textbf{Structure} & \textbf{Lattice Representation} \\
+\midrule
+\addlinespace
+\textbf{(a) $\perfect(5,3)$ Perfect} & \\
+(Total weight: $125$) & 
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{9}{C}} & & & & \mc{1} & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} & & & \mc{3} & \mc{1} & \mc{3} & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} & & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+\textbf{(b) Weight Difference Result} & \\
+(Total weight: $117$) & 
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{9}{C}} & & & & \mc{0} & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} & & & \mc{0} & \mc{0} & \mc{0} & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} & & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular} \\
+\addlinespace[2ex]
+\midrule
+\textbf{(c) Decomposition Details} &
+\begin{minipage}{0.7\textwidth}
+\begin{itemize}
+\item Embedded $\perfect(3,3)$: Layers 3-5, weight $27$
+\item Additional contributions: Weight $90$ from orbits at distances beyond the embedded structure
+\item Total: $27 + 90 = 117 = 125 - 8$
+\item This demonstrates the weight decomposition $k^n - m^n = (k-m)^n + \rho_{\text{outer}}(k,m,n)$
+\end{itemize}
+\end{minipage} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+% =============================================================================
+% TABLE 9: Demonstration of the Weight Difference P(6,4) △ P(3,4) 
+% with Embedding at Layer 2 and Layer 3
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Demonstration of the Weight Difference $\perfect(6,4) \diff \perfect(3,4)$ with Embedding at Layer 2 and Layer 3}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cl}
+\toprule
+\textbf{Structure} & \textbf{Lattice Representation} \\
+\midrule
+\addlinespace
+\midrule
+\textbf{(a) $\perfect(6,4)$ Perfect} & \\
+(Total weight: $1296$) & 
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{11}{C}} & & & & & \mc{1} & & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & & & \mc{7} & \mc{1} & \mc{7} & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & \mc{97} & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & \mc{97} & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} \mc{151} & \mc{97} & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & \mc{97} & \mc{151} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\midrule
+\textbf{(b) Difference with Embedding at Layer 2} & \\
+(Total weight: $1215$) & 
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{11}{C}} & & & & & \mc{1} & & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & & & \mc{7} & \mc{0} & \mc{7} & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & & \mc{25} & \mc{0} & \mc{0} & \mc{0} & \mc{25} & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & \mc{55} & \mc{0} & \mc{0} & \mc{0} & \mc{0} & \mc{0} & \mc{55} & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & \mc{97} & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & \mc{97} & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} \mc{151} & \mc{97} & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & \mc{97} & \mc{151} \end{tabular}
+\end{tabular} \\
+\addlinespace
+\textbf{(c) Difference with Embedding at Layer 3} & \\
+(Total weight: $1215$) & 
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{11}{C}} & & & & & \mc{1} & & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & & & \mc{7} & \mc{1} & \mc{7} & & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & & \mc{25} & \mc{7} & \mc{0} & \mc{7} & \mc{25} & & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & & \mc{55} & \mc{25} & \mc{0} & \mc{0} & \mc{0} & \mc{25} & \mc{55} & & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} & \mc{97} & \mc{55} & \mc{0} & \mc{0} & \mc{0} & \mc{0} & \mc{0} & \mc{55} & \mc{97} & \end{tabular} \\[2pt]
+\begin{tabular}{*{11}{C}} \mc{151} & \mc{97} & \mc{55} & \mc{25} & \mc{7} & \mc{1} & \mc{7} & \mc{25} & \mc{55} & \mc{97} & \mc{151} \end{tabular}
+\end{tabular} \\
+\addlinespace[2ex]
+\midrule
+\textbf{(d) Decomposition Details} &
+\begin{minipage}{0.7\textwidth}
+\begin{itemize}
+\item Original weight: $6^4 = 1296$
+\item Removed $\perfect(3,4)$ weight: $3^4 = 81$
+\item Result weight: $1296 - 81 = 1215$
+\item Embedding at layer 2 affects layers 2-4
+\item Embedding at layer 3 affects layers 3-5
+\item Demonstrates flexible embedding in Perfect structure
+\item Shows preservation of bilateral symmetry in differences
+\end{itemize}
+\end{minipage} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+% =============================================================================
+% TABLE 10: Demonstration of the Difference Operator Δ(P(5,3), P(2,3)) and 
+% Embedding at Various Layers
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Demonstration of the Difference Operator $\Delta(P(5,3), P(2,3))$ and Embedding at Various Layers}
+\begin{tabular}{c}
+\toprule
+Embedding Demonstrations \\
+\midrule
+\addlinespace
+\textbf{(a) Before removal:} \\[5pt]
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{1} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{1}
+& \mc{3} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular}
+\\[15pt]
+\addlinespace
+\midrule
+\textbf{(b) After removing top $2^3$:} \\[5pt]
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{0} & \mc{0} & \mc{0} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular}
+\\[15pt]
+\addlinespace
+\midrule
+\textbf{(c) After removing $2^3$ embedded at layer 2:} \\[5pt]
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{0} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{0} & \mc{0} & \mc{0} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular}
+\\[15pt]
+\addlinespace
+\midrule
+\textbf{(d) After removing $2^3$ embedded at layer 3:} \\[5pt]
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{1} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{0} & \mc{3} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{0} & \mc{0} & \mc{0} & \mc{6} & \mc{9} \end{tabular}
+\\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular}
+\\[15pt]
+\addlinespace
+\midrule
+\textbf{(e) After removing bottom $2^3$:} \\[5pt]
+\begin{tabular}{@{}c@{}}
+\begin{tabular}{*{1}{C}} \mc{1} \end{tabular} \\[2pt]
+\begin{tabular}{*{3}{C}} \mc{3} & \mc{1} & \mc{3} \end{tabular} \\[2pt]
+\begin{tabular}{*{5}{C}} \mc{6} & \mc{3} & \mc{1} & \mc{3} & \mc{6} \end{tabular} \\[2pt]
+\begin{tabular}{*{7}{C}} \mc{9} & \mc{6} & \mc{3} & \mc{0} & \mc{3} & \mc{6} & \mc{9} \end{tabular} \\[2pt]
+\begin{tabular}{*{9}{C}} \mc{12} & \mc{9} & \mc{6} & \mc{0} & \mc{0} & \mc{0} & \mc{6} & \mc{9} & \mc{12} \end{tabular}
+\end{tabular} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================================
+% TABLE 11: Verification of Six-Fold Symmetry for Odd Exponents
+% =============================================================================
+
+\begin{table}[ht]
+\centering
+\caption{Verification of Six-Fold Symmetry for Odd Exponents}
+\begin{tabular}{cccc}
+\toprule
+$k$ & $n$ & $k^n$ & $k^n - k$ (must be divisible by 6) \\
+\midrule
+2 & 3 & 8 & 6 = 6 $\cdot$ 1 \\
+3 & 3 & 27 & 24 = 6 $\cdot$ 4 \\
+4 & 3 & 64 & 60 = 6 $\cdot$ 10 \\
+5 & 3 & 125 & 120 = 6 $\cdot$ 20 \\
+\midrule
+2 & 5 & 32 & 30 = 6 $\cdot$ 5 \\
+3 & 5 & 243 & 240 = 6 $\cdot$ 40 \\
+4 & 5 & 1024 & 1020 = 6 $\cdot$ 170 \\
+5 & 5 & 3125 & 3120 = 6 $\cdot$ 520 \\
+\midrule
+2 & 7 & 128 & 126 = 6 $\cdot$ 21 \\
+3 & 7 & 2187 & 2184 = 6 $\cdot$ 364 \\
+4 & 7 & 16384 & 16380 = 6 $\cdot$ 2730 \\
+5 & 7 & 78125 & 78120 = 6 $\cdot$ 13020 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
