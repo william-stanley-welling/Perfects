@@ -1,0 +1,313 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07071a;overflow:hidden}
+#app{width:100%;height:600px;display:flex;flex-direction:column;font-family:'Courier New',monospace;color:#8899cc;background:#07071a}
+#hdr{padding:6px 14px;background:#09092a;border-bottom:1px solid #14143a;display:flex;align-items:center;gap:14px;font-size:10px;flex-wrap:wrap;flex-shrink:0}
+#hdr .title{color:#9b5de5;font-weight:bold;letter-spacing:3px;font-size:11px}
+#hdr .sub{color:#1e1e4a}
+#hdr .info{margin-left:auto;color:#2a2a5a;font-size:9px}
+#body{flex:1;display:flex;overflow:hidden;min-height:0}
+#lpanel{width:176px;flex-shrink:0;background:#060619;border-right:1px solid #0e0e2c;padding:10px;display:flex;flex-direction:column;gap:10px;font-size:9px;overflow-y:auto}
+#rpanel{width:110px;flex-shrink:0;background:#060619;border-left:1px solid #0e0e2c;padding:9px;display:flex;flex-direction:column;gap:5px;font-size:9px}
+#mount{flex:1;overflow:hidden;position:relative;cursor:grab;background:#07071a}
+#mount canvas{display:block}
+.sec-label{color:#2a2a55;letter-spacing:1px;margin-bottom:5px;font-size:8px}
+.big-num{text-align:center;font-size:22px;color:#ccccff;margin:3px 0}
+input[type=range]{width:100%;accent-color:#9b5de5;cursor:pointer}
+.row-nums{display:flex;justify-content:space-between;color:#1a1a35;margin-top:2px;font-size:8px}
+#clock-box{background:rgba(40,10,90,.25);border:1px solid #220d55;border-radius:5px;padding:9px}
+#clock-box .clk-lbl{color:#9b5de5;letter-spacing:1px;margin-bottom:6px;font-size:8px}
+#clock-box .clk-num{text-align:center;font-size:18px;color:#bbaaff}
+#clock-box .clk-sub{color:#33335a;font-size:8px;text-align:center;margin-top:2px}
+#clock-box .clk-eq{color:#1e1e40;font-size:7px;text-align:center;margin-top:1px}
+.btn-row{display:flex;gap:5px;margin-top:6px}
+.btn{padding:5px 6px;cursor:pointer;font-size:9px;font-family:inherit;border-radius:4px;letter-spacing:1px;border:1px solid #1a1a35;background:#0a0a20;color:#667;transition:all .15s}
+.btn.primary{background:#5e2aaa;color:#fff;border-color:#9b5de5}
+.btn.primary:disabled{background:#130c2e;color:#334;border-color:#1a1a35;cursor:default}
+.dim-text{color:#22224a;line-height:1.7;font-size:8px}
+.purple{color:#9b5de5}
+#formula-box{background:rgba(8,8,28,.8);border:1px solid #0f0f2e;border-radius:4px;padding:7px;color:#1e1e44;line-height:1.8;font-size:8px;margin-top:auto}
+.mode-btn{padding:7px 5px;cursor:pointer;text-align:left;font-family:inherit;background:rgba(10,10,28,.6);border:1px solid #0d0d28;border-radius:5px;color:#2a2a4a;transition:all .15s;width:100%}
+.mode-btn.active{background:rgba(80,35,160,.35);border-color:#5a28aa;color:#ccbbff}
+.mode-icon{font-size:13px}
+.mode-name{font-weight:bold;font-size:10px;color:#334466;margin-top:1px}
+.mode-btn.active .mode-name{color:#fff}
+.mode-tag{font-size:7px;line-height:1.3;margin-top:2px;opacity:.7}
+#legend{margin-top:auto;font-size:7px;color:#1a1a35;line-height:1.9}
+.leg-row{display:flex;align-items:center;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.leg-lbl{color:#334}
+</style>
+
+<div id="app">
+  <div id="hdr">
+    <span class="title">PERFECT LATTICE</span>
+    <span class="sub">Δ³_β · Lambda Calculus · Difference Engine · Beal's Conjecture</span>
+    <span class="info" id="hdr-info">β=5 | Δ³=125 | Cθ=61</span>
+  </div>
+  <div id="body">
+    <div id="lpanel">
+      <div>
+        <div class="sec-label">PERFECT SIZE β</div>
+        <div class="big-num" id="beta-display">β = 5</div>
+        <input type="range" id="beta-slider" min="1" max="8" value="5">
+        <div class="row-nums"><span>β=1</span><span id="cube-display">5³=125</span><span>β=8</span></div>
+      </div>
+
+      <div id="clock-box">
+        <div class="clk-lbl">CLOCK CYCLE</div>
+        <div class="clk-num" id="clk-num">β = 5</div>
+        <div class="clk-sub" id="clk-sub">shell = 61</div>
+        <div class="clk-eq">= 3β²−3β+1</div>
+        <div class="btn-row">
+          <button class="btn primary" id="clk-start" style="flex:1">START</button>
+          <button class="btn" id="clk-reset">↺</button>
+        </div>
+        <div class="dim-text" style="margin-top:8px">
+          ΔC − ΔB = ΔA − 1<br>
+          ΔA + ΔB = ΔC + 1<br>
+          <span class="purple">C6 symmetry →</span><br>
+          6 ergodic states / tick<br>
+          k^n − k^(n−1) = weight
+        </div>
+      </div>
+
+      <div class="dim-text">
+        <div class="purple" style="margin-bottom:3px;font-size:8px;letter-spacing:1px">APPLICATION</div>
+        <div id="app-text" style="color:#445577">Graphene lattice, CMOS image sensors, cortical column arrays</div>
+      </div>
+
+      <div id="formula-box">
+        <div style="color:#2a2a55;margin-bottom:2px">Δ IDENTITIES</div>
+        Δ^θ_β = β^θ<br>
+        C^3_β = 3β²−3β+1<br>
+        Cθ mod 6 ≡ 0  (θ>2)<br>
+        ε₃=6β  ε₄=12β²<br>
+        ε₅=20β³+4β
+      </div>
+    </div>
+
+    <div id="mount"></div>
+
+    <div id="rpanel">
+      <div class="sec-label">SYMMETRY</div>
+      <button class="mode-btn" data-mode="planar"><div class="mode-icon">⊙</div><div class="mode-name">Planar</div><div class="mode-tag">Layer orbits</div></button>
+      <button class="mode-btn" data-mode="bilateral"><div class="mode-icon">⬡</div><div class="mode-name">Bilateral</div><div class="mode-tag">Mirror circuits</div></button>
+      <button class="mode-btn active" data-mode="hexagonal"><div class="mode-icon">◈</div><div class="mode-name">Hexagonal</div><div class="mode-tag">6-sector mask</div></button>
+      <button class="mode-btn" data-mode="sixfold"><div class="mode-icon">✦</div><div class="mode-name">6-Fold</div><div class="mode-tag">3×2 interference</div></button>
+      <button class="mode-btn" data-mode="axial"><div class="mode-icon">↕</div><div class="mode-name">Axial</div><div class="mode-tag">Shell integration</div></button>
+
+      <div id="legend">
+        <div style="color:#2a2a44;margin-bottom:2px;letter-spacing:1px">LEGEND</div>
+        <div id="legend-items"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const SC=['#ff1744','#ff6d00','#ffd600','#00e676','#2979ff','#d500f9'];
+const LC=['#e63946','#f4a261','#2a9d8f','#457b9d','#9b5de5','#f72585','#43bccd','#e9c46a'];
+const RC=['#ffffff','#99bbff','#4477ee','#1a3399','#080a33','#040618'];
+const APPS={
+  planar:'Shift registers, sequencers, gear-tooth memory wheels',
+  bilateral:'Differential pairs, balanced binary trees, push-pull amplifiers',
+  hexagonal:'Graphene lattice, CMOS image sensors, cortical column arrays',
+  sixfold:'Fourier 6th modes, X-ray diffraction, quasicrystal symmetry tiling',
+  axial:'Volume integrals, coaxial resonators, rotational inertia tensors'
+};
+const LEGENDS={
+  hexagonal:SC.map((c,i)=>({c,l:'Sector '+i})),
+  bilateral:[{c:'#3399ff',l:'Left S0-2'},{c:'#ffffff',l:'C1 Axis'},{c:'#ff7755',l:'Right S3-5'}],
+  planar:null,
+  sixfold:[{c:SC[0],l:'Pair 0'},{c:SC[2],l:'Pair 1'},{c:SC[4],l:'Pair 2'}],
+  axial:RC.map((c,i)=>({c,l:'Ring '+i}))
+};
+
+function hexFill(r){
+  const pts=[];
+  for(let q=-r;q<=r;q++){
+    for(let s=Math.max(-r,-q-r);s<=Math.min(r,-q+r);s++){
+      const x=q*1.5,y=(q*.5+s)*Math.sqrt(3);
+      const ring=Math.max(Math.abs(q),Math.abs(s),Math.abs(-q-s));
+      const ang=Math.atan2(y,x);
+      const sector=ring===0?0:((Math.floor((ang+Math.PI)/(Math.PI/3))%6)+6)%6;
+      pts.push({x,y,ring,sector});
+    }
+  }
+  return pts;
+}
+
+function buildPerfect(beta){
+  const pts=[];
+  for(let b=1;b<=beta;b++){
+    const z=(beta/2-b+.5)*1.7;
+    hexFill(b-1).forEach(p=>pts.push({x:p.x*1.12,y:p.y*1.12,z,layer:b,ring:p.ring,sector:p.sector}));
+  }
+  return pts;
+}
+
+function ptColor(p,mode,hi){
+  if(hi&&p.layer===hi)return'#ffffff';
+  switch(mode){
+    case'planar':return LC[(p.layer-1)%LC.length];
+    case'bilateral':return p.ring===0?'#ffffff':p.sector<3?'#3399ff':'#ff7755';
+    case'hexagonal':return SC[p.sector];
+    case'sixfold':return SC[(p.sector%3)*2];
+    case'axial':return RC[Math.min(p.ring,RC.length-1)];
+    default:return'#8899ff';
+  }
+}
+
+let beta=5,mode='hexagonal',hiLayer=null,clockB=5,running=false;
+let S={pts:[],mesh:null,modeRef:'hexagonal',hiRef:null};
+
+const mount=document.getElementById('mount');
+const W=mount.clientWidth||500,H=mount.clientHeight||540;
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(W,H);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x07071a,1);
+mount.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,W/H,.1,500);
+camera.position.set(0,-26,17);
+camera.lookAt(0,0,0);
+scene.add(new THREE.AmbientLight(0x334466,1.1));
+const d1=new THREE.DirectionalLight(0xffffff,1.3);d1.position.set(5,-10,20);scene.add(d1);
+const d2=new THREE.DirectionalLight(0x4466cc,.6);d2.position.set(-8,8,4);scene.add(d2);
+const pivot=new THREE.Group();scene.add(pivot);
+const geo=new THREE.SphereGeometry(.42,10,8);
+const mat=new THREE.MeshPhongMaterial({shininess:80,specular:0x1a1a33});
+
+function updateMeshColors(mesh,pts,m,hi){
+  if(!mesh||!pts.length)return;
+  const col=new THREE.Color();
+  pts.forEach((p,i)=>{col.set(ptColor(p,m,hi));mesh.setColorAt(i,col);});
+  if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
+}
+
+function rebuild(b){
+  if(S.mesh)pivot.remove(S.mesh);
+  const pts=buildPerfect(b);
+  const mesh=new THREE.InstancedMesh(geo,mat,pts.length);
+  const dummy=new THREE.Object3D();
+  pts.forEach((p,i)=>{
+    dummy.position.set(p.x,p.y,p.z);
+    dummy.scale.setScalar(p.layer===1?.65:1);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i,dummy.matrix);
+  });
+  mesh.instanceMatrix.needsUpdate=true;
+  pivot.add(mesh);
+  S.mesh=mesh;S.pts=pts;
+  updateMeshColors(mesh,pts,S.modeRef,S.hiRef);
+}
+
+function setMode(m){
+  mode=m;S.modeRef=m;
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.mode===m);
+  });
+  document.getElementById('app-text').textContent=APPS[m];
+  updateLegend(m);
+  updateMeshColors(S.mesh,S.pts,m,S.hiRef);
+}
+
+function updateLegend(m){
+  const items=LEGENDS[m];
+  const el=document.getElementById('legend-items');
+  if(!items){el.innerHTML='<div style="color:#1a1a35">by layer order</div>';return;}
+  el.innerHTML=items.map(({c,l})=>`<div class="leg-row"><div class="dot" style="background:${c}"></div><span class="leg-lbl">${l}</span></div>`).join('');
+}
+
+function updateInfo(){
+  const shell=beta>1?beta**3-(beta-1)**3:1;
+  document.getElementById('hdr-info').textContent=`β=${beta} | Δ³=${beta**3} | Cθ=${shell}`;
+  document.getElementById('beta-display').textContent='β = '+beta;
+  document.getElementById('cube-display').textContent=beta+'³='+beta**3;
+  document.getElementById('clk-num').textContent='β = '+clockB;
+  document.getElementById('clk-sub').textContent='shell = '+(clockB>0?clockB**3-Math.max(0,clockB-1)**3:0);
+}
+
+let drag=false,lx=0,ly=0,rz=0,rx=.35,ar=0;
+const cv=renderer.domElement;
+cv.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+cv.addEventListener('mouseup',()=>drag=false);
+cv.addEventListener('mouseleave',()=>drag=false);
+cv.addEventListener('mousemove',e=>{
+  if(!drag)return;rz+=(e.clientX-lx)*.012;rx+=(e.clientY-ly)*.012;
+  rx=Math.max(-1.4,Math.min(1.4,rx));lx=e.clientX;ly=e.clientY;
+});
+cv.addEventListener('touchstart',e=>{drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:true});
+cv.addEventListener('touchend',()=>drag=false);
+cv.addEventListener('touchmove',e=>{
+  if(!drag)return;rz+=(e.touches[0].clientX-lx)*.012;rx+=(e.touches[0].clientY-ly)*.012;
+  rx=Math.max(-1.4,Math.min(1.4,rx));lx=e.touches[0].clientX;ly=e.touches[0].clientY;
+},{passive:true});
+
+(function animate(){
+  requestAnimationFrame(animate);
+  if(!drag)ar+=.004;
+  pivot.rotation.z=rz+ar;pivot.rotation.x=rx;
+  renderer.render(scene,camera);
+})();
+
+document.getElementById('beta-slider').addEventListener('input',function(){
+  beta=+this.value;clockB=beta;running=false;hiLayer=null;S.hiRef=null;
+  clearTimeout(clockTimer);
+  document.getElementById('clk-start').disabled=false;
+  document.getElementById('clk-start').textContent='START';
+  rebuild(beta);updateInfo();updateLegend(mode);
+});
+
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>setMode(btn.dataset.mode));
+});
+
+let clockTimer=null;
+function tick(){
+  if(!running||clockB<=1){
+    running=false;hiLayer=null;S.hiRef=null;
+    document.getElementById('clk-start').disabled=false;
+    document.getElementById('clk-start').textContent='START';
+    updateMeshColors(S.mesh,S.pts,mode,null);
+    return;
+  }
+  hiLayer=clockB;S.hiRef=clockB;
+  updateMeshColors(S.mesh,S.pts,mode,clockB);
+  updateInfo();
+  clockTimer=setTimeout(()=>{
+    hiLayer=null;S.hiRef=null;
+    const nb=clockB-1;
+    clockB=nb;beta=nb;
+    document.getElementById('beta-slider').value=nb;
+    rebuild(nb);updateInfo();
+    clockTimer=setTimeout(tick,400);
+  },700);
+}
+
+document.getElementById('clk-start').addEventListener('click',function(){
+  if(running)return;
+  running=true;clockB=beta;
+  this.disabled=true;this.textContent='RUNNING...';
+  tick();
+});
+
+document.getElementById('clk-reset').addEventListener('click',()=>{
+  running=false;hiLayer=null;S.hiRef=null;
+  clearTimeout(clockTimer);
+  beta=5;clockB=5;
+  document.getElementById('beta-slider').value=5;
+  document.getElementById('clk-start').disabled=false;
+  document.getElementById('clk-start').textContent='START';
+  rebuild(5);updateInfo();
+});
+
+rebuild(beta);updateInfo();updateLegend(mode);
+})();
+</script>
